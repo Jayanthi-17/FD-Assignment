@@ -106,3 +106,21 @@ button:hover {
     flex-direction: column;
   }
 }
+.error-hint {
+  color: #d32f2f;
+  font-size: 0.8rem;
+  height: 1rem;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+input:invalid {
+  border-color: #d32f2f;
+}
