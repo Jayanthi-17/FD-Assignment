@@ -1,5 +1,146 @@
+// Inject CSS dynamically
+const style = document.createElement('style');
+style.textContent = `
+  body {
+    font-family: Georgia, serif;
+    background-color: #fff8e1;
+    color: #4e342e;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    max-width: 600px;
+    width: 100%;
+    background: #fff;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #999;
+    border-radius: 8px;
+    box-sizing: border-box;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  button {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  button:nth-child(1) {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  button:nth-child(2) {
+    background-color: #f44336;
+    color: white;
+  }
+
+  button:nth-child(3) {
+    background-color: #2196f3;
+    color: white;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  .error, .error-hint {
+    color: #d32f2f;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+
+  .error {
+    background-color: #ffebee;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+  }
+
+  .result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f8f8;
+    border-left: 4px solid #4caf50;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      padding: 1rem;
+    }
+    .button-group {
+      flex-direction: column;
+    }
+  }
+
+  .error-hint {
+    color: #d32f2f;
+    font-size: 0.8rem;
+    height: 1rem;
+    display: block;
+    margin-top: 0.25rem;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  input:invalid {
+    border-color: #d32f2f;
+  }
+`;
+document.head.appendChild(style);
+
+// Inject container div if it doesn't exist
+if (!document.getElementById("app")) {
+  const container = document.createElement("div");
+  container.className = "container";
+  container.id = "app";
+  document.body.appendChild(container);
+}
+
 function generateForm() {
   const app = document.getElementById("app");
+  app.className = "container"; // Ensure class applied
   app.innerHTML = `
     <h1>Date Calculator</h1>
 
@@ -34,19 +175,13 @@ function generateForm() {
     <div id="error" class="error"></div>
   `;
 
-  // Manual date validation
-  document.getElementById("manual-date").addEventListener("input", function() {
-    validateManualDate();
-  });
-
-  // Strict numeric validation for interval
-  document.getElementById("interval").addEventListener("input", function() {
+  document.getElementById("manual-date").addEventListener("input", validateManualDate);
+  document.getElementById("interval").addEventListener("input", function () {
     this.value = this.value.replace(/[^0-9]/g, '');
-    document.getElementById("interval-error").textContent = 
+    document.getElementById("interval-error").textContent =
       this.value ? "" : "Please enter a number";
   });
 
-  // Add event listeners
   document.getElementById("add-btn").addEventListener("click", () => calculateDate('add'));
   document.getElementById("subtract-btn").addEventListener("click", () => calculateDate('subtract'));
   document.getElementById("reset-btn").addEventListener("click", resetForm);
@@ -59,7 +194,7 @@ function parseInputDate() {
 
   if (calendarDate) {
     const date = new Date(calendarDate);
-    document.getElementById("selected-date-preview").textContent = 
+    document.getElementById("selected-date-preview").textContent =
       `Selected Date: ${date.toLocaleDateString("en-US")}`;
     return date;
   }
@@ -72,13 +207,13 @@ function parseInputDate() {
 
     const [mm, dd, yyyy] = manualDate.split("/").map(Number);
     const date = new Date(yyyy, mm - 1, dd);
-    
+
     if (isNaN(date)) {
       errorField.textContent = "Invalid date";
       return null;
     }
 
-    document.getElementById("selected-date-preview").textContent = 
+    document.getElementById("selected-date-preview").textContent =
       `Selected Date: ${date.toLocaleDateString("en-US")}`;
     return date;
   }
@@ -90,7 +225,7 @@ function parseInputDate() {
 function validateManualDate() {
   const input = document.getElementById("manual-date").value.trim();
   const errorField = document.getElementById("date-error");
-  
+
   if (!input) {
     errorField.textContent = "";
     return true;
@@ -102,7 +237,7 @@ function validateManualDate() {
   }
 
   const [mm, dd, yyyy] = input.split("/").map(Number);
-  
+
   if (mm < 1 || mm > 12) {
     errorField.textContent = "Month must be 1-12";
     return false;
@@ -121,13 +256,10 @@ function validateManualDate() {
 function addMonths(date, months) {
   const newDate = new Date(date);
   const originalDate = date.getDate();
-  
   newDate.setMonth(newDate.getMonth() + months);
-  
   if (newDate.getDate() !== originalDate) {
     newDate.setDate(0);
   }
-  
   return newDate;
 }
 
@@ -168,15 +300,13 @@ function calculateDate(action) {
     }
 
     const formattedDate = resultDate.toLocaleDateString("en-US", {
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
       day: 'numeric'
     });
 
-    document.getElementById("output").innerHTML = `
-      <strong>Resulting Date:</strong> ${formattedDate}
-    `;
+    document.getElementById("output").innerHTML = `<strong>Resulting Date:</strong> ${formattedDate}`;
   } catch (e) {
     errorField.textContent = "Invalid calculation";
   }
@@ -193,5 +323,5 @@ function resetForm() {
   document.getElementById("selected-date-preview").textContent = "";
 }
 
-// Initialize
+// Initialize the app
 generateForm();
